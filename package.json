@@ -1,10 +1,10 @@
 {
-  "name": "eai-sdk",
+  "name": "eai-nodejs",
   "version": "1.0.0",
   "description": "A reusable library for RabbitMQ message processing, API adapters, and data transformation.",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node lib/index.js"
   },
   "keywords": [
     "rabbitmq",
@@ -14,11 +14,16 @@
     "jsonata",
     "eai"
   ],
-  "author": "Your Name",
+  "author": "Jayavenitha G K",
   "license": "MIT",
   "dependencies": {
     "amqplib": "^0.8.0",
     "axios": "^1.2.1",
     "jsonata": "^1.8.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/venitha1296/EAI-nodejs.git"
+  },
+  "homepage": "https://github.com/venitha1296/EAI-nodejs.git#readme"
 }
