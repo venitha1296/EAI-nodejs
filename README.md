@@ -1,86 +1,204 @@
-# EAI-nodejs SDK
 
-[![npm version](https://badge.fury.io/js/eai-nodejs.svg)](https://www.npmjs.com/package/eai-nodejs)
+# EAI-NODEJS SDK Documentation
 
 ## Overview
 
-The **EAI-nodejs SDK** is a flexible library that enables seamless RabbitMQ message processing. It comes with built-in functionalities for adapters, transformers, and custom RabbitMQ listeners, making it ideal for integrating with various message-based architectures and APIs.
+This SDK provides a RabbitMQ message processor, API adapter for fetching data with authentication, and a transformer for applying dynamic transformations to data using JSONata expressions. 
 
-## Features
+It enables easy integration with external APIs, processes RabbitMQ messages, and transforms data dynamically.
 
-- **RabbitMQ Listener**: Dynamically process and listen for RabbitMQ messages.
-- **API Adapter**: Easily fetch data from an API with authentication support.
-- **Data Transformation**: Transform message data with customizable transformers, including JSONata support.
+---
+
+## Table of Contents
+
+1. [Modules](#modules)
+2. [Installation](#installation)
+3. [API Reference](#api-reference)
+   - [`getAuthToken(apiUrl, apiKey)`](#getauthtokenapiurl-apikey)
+   - [`fetchData(apiUrl, token)`](#fetchdataapiurl-token)
+   - [`transformData(data, expression)`](#transformdatadata-expression)
+   - [`processMessage(message)`](#processmessagemessage)
+   - [`startListener(rabbitMQUrl, queueName, handleMessage)`](#startlistenerrabbitmqul-queuename-handlemessage)
+   - [`sendMessage(msg, config)`](#sendmessagemsg-config)
+
+---
+
+## Modules
+
+### 1. Adapter Module (`/lib/adapter/apiAdapter.js`)
+
+Handles authentication and data fetching from an API.
+
+### 2. Queue Processor (`/lib/queue/processMessage.js`)
+
+Processes the RabbitMQ messages by fetching data, transforming it, and further processing it.
+
+### 3. RabbitMQ Listener (`/lib/queue/rabbitmqListener.js`)
+
+Listens to RabbitMQ queues and triggers the message processing.
+
+### 4. Data Transformer (`/lib/transformer/dataTransformer.js`)
+
+Transforms data using dynamic JSONata expressions.
+
+---
 
 ## Installation
 
-You can install this package using npm:
+To install this package, run:
 
 ```bash
-npm install eai-nodejs
+npm install eai-sdk
 ```
 
+---
 
-## Usage
-Here’s an example of how to use the SDK to listen for messages, process them through the adapter, and apply a data transformation.
+## API Reference
 
-```bash
+### `getAuthToken(apiUrl, apiKey)`
 
-const { RabbitMQProcessor } = require('EAI-nodejs');
+Fetches an authentication token from the specified API URL using the provided API key.
 
-// Initialize RabbitMQ processor
-const processor = new RabbitMQProcessor({
-  rabbitMqUrl: 'amqp://localhost', // RabbitMQ URL
-  queue: 'my-queue-name'
-});
+**Parameters:**
 
-// Define adapter logic to fetch data from an API
-const adapter = async () => {
-  const token = await processor.getAuthToken('your-api-key');
-  return await processor.fetchData(token, 'https://api.example.com/data');
+- `apiUrl`: **String** - The URL of the API to authenticate against.
+- `apiKey`: **String** - The API key used for authentication.
+
+**Returns:**
+
+- **Object** - The response object containing the token.
+
+**Example:**
+
+```javascript
+const token = await getAuthToken('https://api.example.com/auth', 'your-api-key');
+```
+
+---
+
+### `fetchData(apiUrl, token)`
+
+Fetches data from the specified API URL using the provided token.
+
+**Parameters:**
+
+- `apiUrl`: **String** - The URL of the API to fetch data from.
+- `token`: **String** - The authentication token.
+
+**Returns:**
+
+- **Object** - The data fetched from the API.
+
+**Example:**
+
+```javascript
+const data = await fetchData('https://api.example.com/data', token);
+```
+
+---
+
+### `transformData(data, expression)`
+
+Transforms data using a JSONata expression.
+
+**Parameters:**
+
+- `data`: **Object** - The data to be transformed.
+- `expression`: **String** - A JSONata expression used to transform the data.
+
+**Returns:**
+
+- **Object** - The transformed data.
+
+**Example:**
+
+```javascript
+const transformedData = transformData(data, '$.name');
+```
+
+---
+
+### `processMessage(message)`
+
+Processes a RabbitMQ message by fetching data using the API adapter, transforming it, and logging the transformed data.
+
+**Parameters:**
+
+- `message`: **Object** - The message received from RabbitMQ containing the `apiKey`, `apiUrl`, and `transformationExpression`.
+
+**Example:**
+
+```javascript
+const message = {
+  apiKey: 'your-api-key',
+  apiUrl: 'https://api.example.com/data',
+  transformationExpression: '$.name'
+};
+await processMessage(message);
+```
+
+---
+
+### `startListener(rabbitMQUrl, queueName, handleMessage)`
+
+Starts a RabbitMQ listener that processes messages from the specified queue.
+
+**Parameters:**
+
+- `rabbitMQUrl`: **String** - The RabbitMQ server URL.
+- `queueName`: **String** - The name of the queue to listen to.
+- `handleMessage`: **Function** - A callback function to process each message.
+
+**Example:**
+
+```javascript
+startListener('amqp://localhost', 'my_queue', processMessage);
+```
+
+---
+
+### `sendMessage(msg, config)`
+
+Sends a message to a specified RabbitMQ queue.
+
+**Parameters:**
+
+- `msg`: **Object** - The message to send.
+- `config`: **Object** - Configuration object containing `url` (RabbitMQ server URL) and `outputQueue` (the queue name).
+
+**Returns:**
+
+- **Promise** - Resolves when the message is successfully sent.
+
+**Example:**
+
+```javascript
+const config = {
+  url: 'amqp://localhost',
+  outputQueue: 'output_queue'
 };
 
-// Define transformer logic to transform the message data
-const transformer = (data) => {
-  const expression = '$.name';
-  return processor.transformData(data, expression);
-};
+const message = { key: 'value' };
 
-// Start listening and processing messages
-processor.listen(adapter, transformer);
-
+await sendMessage(message, config);
 ```
 
+---
 
-## Express API Integration
-You can also integrate the SDK with an Express API to handle webhooks or other types of triggers:
+## Error Handling
 
-```bash
-const express = require('express');
-const { RabbitMQProcessor } = require('rabbitmq-processor-sdk');
+Each module includes basic error handling, ensuring that errors encountered during API requests, message processing, or message sending are caught and logged.
 
-const app = express();
-app.use(express.json());
+**Example:**
 
-const processor = new RabbitMQProcessor({
-  rabbitMqUrl: 'amqp://localhost',
-  queue: 'my-queue-name'
-});
-
-// Define a webhook route to trigger message processing
-app.post('/webhook', async (req, res) => {
-  const { data } = req.body;
-  const transformedData = processor.transformData(data, '$.name');
-  res.json({ transformedData });
-});
-
-app.listen(3000, () => {
-  console.log('Server listening on port 3000');
-});
-
+```javascript
+try {
+    const token = await getAuthToken(apiUrl, apiKey);
+} catch (error) {
+    console.error('Failed to fetch auth token:', error);
+}
 ```
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+---
+
+This documentation outlines how to use each component of the library, with examples for setting up RabbitMQ listeners, fetching API data, transforming it, and pushing messages back to RabbitMQ.
