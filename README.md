@@ -124,13 +124,13 @@ Processes a RabbitMQ message by fetching data using the API adapter, transformin
 
 **Parameters:**
 
-- `message`: **Object** - The message received from RabbitMQ containing the `apiKey`, `apiUrl`, and `transformationExpression`.
+- `message`: **Object** - The message received from RabbitMQ containing the  `token`, `apiUrl`, and `transformationExpression`.
 
 **Example:**
 
 ```javascript
 const message = {
-  apiKey: 'your-api-key',
+  token: 'your-token-key',
   apiUrl: 'https://api.example.com/data',
   transformationExpression: '$.name'
 };
