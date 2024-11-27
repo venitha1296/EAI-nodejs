@@ -1,6 +1,6 @@
 {
   "name": "eai-nodejs",
-  "version": "0.0.5",
+  "version": "1.1.0",
   "description": "A reusable library for RabbitMQ message processing, API adapters, and data transformation.",
   "main": "lib/index.js",
   "scripts": {
